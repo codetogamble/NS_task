@@ -22,7 +22,6 @@ MODEL_TYPE = "TRANSFORMER"
 MAX_LENGTH_ARTICLE = 1200
 MAX_LENGTH_HEADLINE = 40
 TRAIN_EMBED = False
-LOAD_PREV = False
 
 print("reading datasets ... ")
 main_set = readDataset("./dataset/")
@@ -74,6 +73,6 @@ model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoi
 
 history = model_.fit(x=[trainap,trainhp],y=train_labels,epochs=4,batch_size=100,callbacks=[model_checkpoint_callback],validation_data=([testap,testhp],test_labels))
 
-# tf.keras.models.save_model(model_,"./saved/"+MODEL_TYPE+"_"+MODEL_NAME)
 model_.save_weights(checkpoint_path)
 # model_.save("./saved/"+MODEL_TYPE+"_"+MODEL_NAME)
+

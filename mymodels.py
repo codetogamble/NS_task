@@ -165,6 +165,8 @@ def getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LEN
     pos_encoding_body = positional_encoding(n1, d1)
     pos_encoding_statement = positional_encoding(n2, d2)
 
+    ## Ideally positional encoding will be fixed for input size thus should only be calculated once for model type.
+
     # pos_encoding_body = tf.random.uniform((100,1200,50))
     # pos_encoding_statement = tf.random.uniform((100,40,50))
 
