@@ -59,3 +59,8 @@ def getBalancedData(ppdf,binaryclass=False):
     repeatSer = ppdf["Stance"].apply(retcount)
     ppdfoversampled = ppdf.reindex(ppdf.index.repeat(repeatSer))
     return ppdfoversampled
+
+def getModelInput(str_):
+    str_ = removeNL(str_)
+    str_ = removeSC(str_)
+    return str_
