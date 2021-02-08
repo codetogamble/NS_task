@@ -3,6 +3,7 @@ from textpreprocessing import preprocessDF, getBalancedData
 from utils import initTokenizer,loadTokenizer,dataPrep
 from mymodels import getModelWithType
 import tensorflow as tf
+import os
 
 TEST_ON_COMP = True
 ## assign False if validation set should be extracted from training set itself
@@ -65,6 +66,7 @@ print("Padded Inputs with Labels TEST READY.")
 model_ = getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LENGTH_HEADLINE,TRAIN_EMBED,tokenizer)
 
 print(model_.summary())
+os.mkdir("./checkpoints/"+MODEL_TYPE+"_"+MODEL_NAME)
 checkpoint_path = "./checkpoints/"+MODEL_TYPE+"_"+MODEL_NAME+"/weights"
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,save_weights_only=True,monitor='acc',save_best_only=False)
 
