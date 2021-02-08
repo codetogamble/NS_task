@@ -32,6 +32,10 @@ MAX_LENGTH_ARTICLE = 1200 (these values is chosen becuase majority of data lies 
 MAX_LENGTH_HEADLINE = 40 
 TRAIN_EMBED = False (Toggle if you want to make word embedding layer trainables)
 
+Running "python train.py" command will launch a training session of model with specified configuration. Tokenizer for each run is saved with model name in folder named "tokenizers_confs" for future use.
+
+"python measure.py" command will load and evaluate the model on competetion_test.csv. Make sure to use identical coinfiguration for the measure.py file which were used in train.py while training the model.
+
 # MODEL TYPES:
 Both architectures takes mutliple inputs (which is why functional api is used instead of sequential api of keras for ease). First input is article body and second inpurt is statement.
 
