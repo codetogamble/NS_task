@@ -4,6 +4,7 @@ This folder contains copy of previous section in order to deploy to a live serve
 To run locally, run the following commands from this folder path
 
 export FLASK_APP=server_1.py
+
 flask run
 
 curl --location --request POST 'localhost:5000/query' \
