@@ -5,6 +5,9 @@ from mymodels import getModelWithType
 import tensorflow as tf
 import os
 
+### THIS FILE IS USED TO TRAIN MODELS WITH SPECIFIED CONFIGURATION. KEEP IN MIND TO USE THE SAME CONF FOR measure.py.
+
+
 TEST_ON_COMP = True
 ## assign False if validation set should be extracted from training set itself
 DATA_SPLIT = 0.2 

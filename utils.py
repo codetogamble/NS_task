@@ -3,8 +3,11 @@ from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.utils import to_categorical
 import json
 
+## Utils file is for general preprocessing steps related to models.
+
 
 def getOneHotLabels(ppdf):
+    '''converts int values in stance column from dataframe to one hot encoded array'''
     labels = to_categorical(ppdf["Stance"].values)
     return labels
 
@@ -38,6 +41,7 @@ def tokenizer_from_json(json_string):
     return tokenizer
 
 def initTokenizer(df,modelname,oov_token='<OOV>'):
+    '''initializes a New tokenizer for given dataframe and model name'''
     totaltext_body = " ".join(df["articleBody"].unique())
     totaltext_headline = " ".join(df["Headline"].unique())
     totaltext = totaltext_body + " " + totaltext_headline
@@ -49,6 +53,7 @@ def initTokenizer(df,modelname,oov_token='<OOV>'):
 
 
 def loadTokenizer(modelname):
+    '''loads a previously saved tokenizer from config file'''
     with open("./tokenizers_confs/"+modelname+"_config.json") as fconf:
         jsonstring = fconf.read()
         tokenizer = tokenizer_from_json(jsonstring)
@@ -56,6 +61,7 @@ def loadTokenizer(modelname):
 
 
 def getTokenizedData(ppdf,tokenizer):
+    '''converts string statement to list of token values WITHOUT PADDING'''
     articlebody = ppdf["articleBody"].values
     headline = ppdf["Headline"].values
     articlebody_split = [b.split() for b in articlebody]
@@ -66,10 +72,12 @@ def getTokenizedData(ppdf,tokenizer):
 
 
 def getPaddedData(tokendata,maxlength):
+    '''adds POST padding to the given tokendata'''
     padded = pad_sequences(tokendata,maxlen=maxlength,padding="post",truncating="post")
     return padded
 
 def dataPrep(df,tokenizer,MAX_LENGTH_ARTICLE,MAX_LENGTH_HEADLINE):
+    '''assembles the operations above for making model compatible inputs'''
     listtok = getTokenizedData(df,tokenizer)
     articlebodytok = listtok[0]
     headlinetok = listtok[1]

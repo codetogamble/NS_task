@@ -5,6 +5,8 @@ from mymodels import getModelWithType
 import tensorflow as tf
 import os
 
+## BEFORE RUNNING THIS FILE MAKE SURE THAT CONFIGURATION MATCHES FOR THE MODEL YOU WANT TO EVALUATE.
+
 TEST_ON_COMP = False
 ## assign False if validation set should be extracted from training set itself
 DATA_SPLIT = 0.2 

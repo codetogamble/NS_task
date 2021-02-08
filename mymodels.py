@@ -100,8 +100,6 @@ class MultiHeadAttention(layers.Layer):
         k = self.split_heads(k, batch_size)  # (batch_size, num_heads, seq_len_k, depth)
         v = self.split_heads(v, batch_size)  # (batch_size, num_heads, seq_len_v, depth)
 
-        # scaled_attention.shape == (batch_size, num_heads, seq_len_q, depth)
-        # attention_weights.shape == (batch_size, num_heads, seq_len_q, seq_len_k)
         scaled_attention, attention_weights = scaled_dot_product_attention(
             q, k, v, mask)
 
@@ -144,8 +142,6 @@ class EncoderLayer(layers.Layer):
 @tf.function
 def create_padding_mask(seq):
     seq = tf.cast(tf.math.equal(seq, 0), tf.float32)
-    # add extra dimensions to add the padding
-    # to the attention logits.
     return seq[:, tf.newaxis, tf.newaxis, :]
 
 
@@ -166,9 +162,6 @@ def getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LEN
     pos_encoding_statement = positional_encoding(n2, d2)
 
     ## Ideally positional encoding will be fixed for input size thus should only be calculated once for model type.
-
-    # pos_encoding_body = tf.random.uniform((100,1200,50))
-    # pos_encoding_statement = tf.random.uniform((100,40,50))
 
     maskbody = tf.cast(tf.math.equal(Input_body, 0), tf.float32)
     maskbody = maskbody[:, tf.newaxis, tf.newaxis, :]
@@ -253,7 +246,7 @@ def getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LEN
         mergedlay = layers.Concatenate(axis=1)([flatbody,flatstat])
         outdense1 = layers.Dense(32,activation='relu')(mergedlay)
         outdense2 = layers.Dense(numclasses,activation='softmax')(outdense1)
-        opt = Adam(learning_rate=0.01)
+        opt = Adam(learning_rate=0.001)
         modelret = Model(inputs=[Input_body,Input_statement],outputs=[outdense2])
         modelret.compile(optimizer=opt,loss='categorical_crossentropy',metrics=["CategoricalAccuracy"])
 

@@ -2,11 +2,14 @@ import os
 import numpy as np
 
 
+## Change the below for usage of higher dimensional embeddings
+
 GLOVE_DIR = "./embeddings/"
 GLOVE_FILE = 'glove.6B.50d.txt'
 EMBEDDING_DIM = 50
 
 def getEmbeddingWeightsGlove(word_index):
+    '''loads embedding and returns numpy weight matrix of shape totalwords+1, embedding dimensions'''
     embeddings_index = {}
     f = open(os.path.join(GLOVE_DIR,GLOVE_FILE))
     for line in f:
