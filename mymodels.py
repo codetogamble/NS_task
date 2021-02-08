@@ -141,7 +141,7 @@ class EncoderLayer(layers.Layer):
 
 
         
-
+@tf.function
 def create_padding_mask(seq):
     seq = tf.cast(tf.math.equal(seq, 0), tf.float32)
     # add extra dimensions to add the padding
@@ -158,6 +158,21 @@ def getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LEN
     
     Input_body = layers.Input(shape=(MAX_LENGTH_ARTICLE,))
     Input_statement = layers.Input(shape=(MAX_LENGTH_HEADLINE,))
+
+    n1,d1 = MAX_LENGTH_ARTICLE, 50
+    n2,d2 = MAX_LENGTH_HEADLINE, 50
+
+    pos_encoding_body = positional_encoding(n1, d1)
+    pos_encoding_statement = positional_encoding(n2, d2)
+
+    # pos_encoding_body = tf.random.uniform((100,1200,50))
+    # pos_encoding_statement = tf.random.uniform((100,40,50))
+
+    maskbody = tf.cast(tf.math.equal(Input_body, 0), tf.float32)
+    maskbody = maskbody[:, tf.newaxis, tf.newaxis, :]
+    maskstat = tf.cast(tf.math.equal(Input_statement, 0), tf.float32)
+    maskstat = maskstat[:, tf.newaxis, tf.newaxis, :]
+
     embed_body = layers.Embedding(embdweights.shape[0],embdweights.shape[1],weights=[embdweights],input_length=MAX_LENGTH_ARTICLE,trainable=TRAIN_EMBED)(Input_body)
     embed_stat = layers.Embedding(embdweights.shape[0],embdweights.shape[1],weights=[embdweights],input_length=MAX_LENGTH_HEADLINE,trainable=TRAIN_EMBED)(Input_statement)
 
@@ -196,25 +211,17 @@ def getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LEN
         return modelret
     
     elif(MODEL_TYPE=="TRANSFORMER"):
-        n1,d1 = MAX_LENGTH_ARTICLE, 50
-        n2,d2 = MAX_LENGTH_HEADLINE, 50
-
-        pos_encoding_body = positional_encoding(n1, d1)
-        pos_encoding_statement = positional_encoding(n2, d2)
-
         encoding_layer_1 = EncoderLayer(50,2,256)
         encoding_layer_1b = EncoderLayer(50,2,256)
 
-        embed_body *= tf.math.sqrt(tf.cast(50, tf.float32))
-        embed_body += pos_encoding_body[:, :MAX_LENGTH_ARTICLE, :]
-        embed_stat *= tf.math.sqrt(tf.cast(50, tf.float32))
-        embed_stat += pos_encoding_statement[:, :MAX_LENGTH_HEADLINE, :]
+        embed_body = tf.math.multiply(embed_body,tf.math.sqrt(tf.cast(50, tf.float32)))
+        embed_body = tf.math.add(embed_body,pos_encoding_body[:, :MAX_LENGTH_ARTICLE, :])
 
-        bodymask = create_padding_mask(Input_body)
-        statmask = create_padding_mask(Input_statement)
+        embed_stat = tf.math.multiply(embed_stat,tf.math.sqrt(tf.cast(50, tf.float32)))
+        embed_stat = tf.math.add(embed_stat,pos_encoding_statement[:, :MAX_LENGTH_HEADLINE, :])
         
-        bodyenc = encoding_layer_1(embed_body,mask = bodymask)
-        statenc = encoding_layer_1b(embed_stat,mask = statmask)
+        bodyenc = encoding_layer_1(embed_body,mask = maskbody)
+        statenc = encoding_layer_1b(embed_stat,mask = maskstat)
 
         convbody_1 = layers.Conv1D(16,1,activation='relu')(bodyenc)
         convbody_1pooled = layers.AveragePooling1D(pool_size=4,strides=4)(convbody_1)
@@ -244,7 +251,7 @@ def getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LEN
         mergedlay = layers.Concatenate(axis=1)([flatbody,flatstat])
         outdense1 = layers.Dense(32,activation='relu')(mergedlay)
         outdense2 = layers.Dense(numclasses,activation='softmax')(outdense1)
-        opt = Adam(learning_rate=0.001)
+        opt = Adam(learning_rate=0.01)
         modelret = Model(inputs=[Input_body,Input_statement],outputs=[outdense2])
         modelret.compile(optimizer=opt,loss='categorical_crossentropy',metrics=["CategoricalAccuracy"])
 

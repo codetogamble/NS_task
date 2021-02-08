@@ -64,12 +64,16 @@ testap,testhp,test_labels = dataPrep(test_set,tokenizer,MAX_LENGTH_ARTICLE,MAX_L
 print("Padded Inputs with Labels TEST READY.")
 
 model_ = getModelWithType(MODEL_TYPE,BINARY_CLASSIFICATION,MAX_LENGTH_ARTICLE,MAX_LENGTH_HEADLINE,TRAIN_EMBED,tokenizer)
-
 print(model_.summary())
-os.mkdir("./checkpoints/"+MODEL_TYPE+"_"+MODEL_NAME)
-checkpoint_path = "./checkpoints/"+MODEL_TYPE+"_"+MODEL_NAME+"/weights"
+checkpoint_path = "./checkpoints/"+MODEL_TYPE+"_"+MODEL_NAME+"/weights.hdf5"
+
+if(not os.path.exists("./checkpoints/"+MODEL_TYPE+"_"+MODEL_NAME)):
+    os.mkdir("./checkpoints/"+MODEL_TYPE+"_"+MODEL_NAME)
+
 model_checkpoint_callback = tf.keras.callbacks.ModelCheckpoint(filepath=checkpoint_path,save_weights_only=True,monitor='acc',save_best_only=False)
 
-history = model_.fit(x=[trainap,trainhp],y=train_labels,epochs=2,batch_size=100,callbacks=[model_checkpoint_callback],validation_data=([testap,testhp],test_labels))
+history = model_.fit(x=[trainap,trainhp],y=train_labels,epochs=4,batch_size=100,callbacks=[model_checkpoint_callback],validation_data=([testap,testhp],test_labels))
 
-model_.save("./saved/"+MODEL_TYPE+"_"+MODEL_NAME)
+# tf.keras.models.save_model(model_,"./saved/"+MODEL_TYPE+"_"+MODEL_NAME)
+model_.save_weights(checkpoint_path)
+# model_.save("./saved/"+MODEL_TYPE+"_"+MODEL_NAME)
